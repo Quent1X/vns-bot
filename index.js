@@ -205,8 +205,7 @@ client.on(Events.InteractionCreate, async interaction => {
     
       const PLATFORM_ROLE_MAP = {
         twitch: '1364945730372112496',
-        youtube: 'TON_ID_ROLE_YOUTUBE',
-        tiktok: 'TON_ID_ROLE_TIKTOK'
+        youtube: '1364957258215063584',
       };
     
       const roleId = PLATFORM_ROLE_MAP[platformId];
