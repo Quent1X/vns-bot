@@ -164,8 +164,8 @@ client.once('ready', async () => {
           `🔧 **Commandes disponibles :**\n\n` +
           `• \`/twitch add @utilisateur pseudo_twitch\` → Enregistre un membre avec son pseudo Twitch\n` +
           `• \`/twitch remove @utilisateur\` → 	Marque un utilisateur comme désactivé\n` +
-          `• \`/twitch activate\` → Réactive un utilisateur désactivé\n` +
-          `• \`/twitch delete\` → Supprime complètement de la base\n` +
+          `• \`/twitch activate @utilisateur\` → Réactive un utilisateur désactivé\n` +
+          `• \`/twitch delete @utilisateur\` → Supprime complètement de la base\n` +
           `• \`/twitch list\` → Affiche tous les streamers enregistrés\n\n` +
           `📌 **Fonctionnement automatique :**\n` +
           `Une fois qu’un streamer est enregistré, le bot vérifie automatiquement toutes les 5 minutes s’il est **en live**.\n` +
