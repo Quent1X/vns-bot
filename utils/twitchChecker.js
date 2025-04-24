@@ -3,7 +3,6 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
 
 const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
