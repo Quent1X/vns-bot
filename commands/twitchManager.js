@@ -65,33 +65,40 @@ module.exports = {
 
       return interaction.reply({ content: `✅ ${user} ajouté comme **${twitchUsername}**`, ephemeral: false });
     }
-
+    
     if (sub === 'remove') {
-      const user = interaction.options.getUser('utilisateur');
-      const initialLength = data.streamers.length;
-      data.streamers = data.streamers.filter(s => s.discordId !== user.id);
-
-      if (data.streamers.length === initialLength) {
-        return interaction.reply({ content: "❌ Ce membre n'était pas enregistré.", ephemeral: true });
+        const user = interaction.options.getUser('utilisateur');
+        const streamer = data.streamers.find(s => s.discordId === user.id);
+      
+        if (!streamer) {
+          return interaction.reply({ content: "❌ Ce membre n’est pas dans la liste.", ephemeral: true });
+        }
+      
+        streamer.active = false; // désactive au lieu de supprimer
+        fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
+      
+        return interaction.reply({ content: `🗑️ ${user} est maintenant désactivé.`, ephemeral: false });
       }
-
-      fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
-      return interaction.reply({ content: `🗑️ ${user} a été retiré des streamers Twitch.`, ephemeral: false });
-    }
+      
 
     if (sub === 'list') {
-      if (data.streamers.length === 0) {
-        return interaction.reply({ content: "📭 Aucun streamer Twitch enregistré pour le moment.", ephemeral: false });
+        if (data.streamers.length === 0) {
+          return interaction.reply({ content: "📭 Aucun streamer Twitch enregistré.", ephemeral: false });
+        }
+      
+        const listEmbed = new EmbedBuilder()
+          .setTitle("📺 Liste des streamers Twitch")
+          .setColor(0x9146FF)
+          .setDescription(
+            data.streamers.map(s => {
+              const status = s.active === false ? '🔕 inactif' : '✅ actif';
+              const userDisplay = s.discordId ? `<@${s.discordId}>` : '`inconnu`';
+              return `• ${userDisplay} → **${s.username}** (${status})`;
+            }).join('\n')
+          );
+      
+        return interaction.reply({ embeds: [listEmbed] });
       }
-
-      const listEmbed = new EmbedBuilder()
-        .setTitle("🎥 Liste des streamers Twitch")
-        .setColor(0x9146FF)
-        .setDescription(
-          data.streamers.map(s => `- <@${s.discordId}> → **${s.username}**`).join('\n')
-        );
-
-      return interaction.reply({ embeds: [listEmbed] });
-    }
+      
   }
 };

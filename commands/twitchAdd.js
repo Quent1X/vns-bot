@@ -7,7 +7,7 @@ const STAFF_ROLE_ID = '1364697720127754302';
 
 module.exports = {
   data: new SlashCommandBuilder()
-  .setName('twitchadd')
+  .setName('twitch')
 
     .setDescription('Gérer les streamers Twitch')
     .addSubcommand(sub =>
