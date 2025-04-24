@@ -152,6 +152,37 @@ client.once('ready', async () => {
   
     console.log("📩 Messages de sélection de rôles envoyés (si absents)");
   }  
+  const COMMANDS_PANEL_CHANNEL = '1364954060570103868';
+
+  const commandChannel = client.channels.cache.get(COMMANDS_PANEL_CHANNEL);
+  if (commandChannel) {
+    const messages = await commandChannel.messages.fetch({ limit: 10 });
+    const alreadyPosted = messages.some(msg => msg.author.id === client.user.id && msg.embeds.length);
+
+    if (!alreadyPosted) {
+      const embed = new EmbedBuilder()
+        .setTitle('🎛️ Panneau de gestion des streamers Twitch')
+        .setDescription(
+          `🧰 Utilisez les **commandes slash** ci-dessous pour gérer les streamers :\n\n` +
+          `• \`/twitch add\` → Ajouter un streamer\n` +
+          `• \`/twitch remove\` → Supprimer un streamer\n` +
+          `• \`/twitch list\` → Voir la liste\n\n` +
+          `👑 Réservé au rôle <@&1364697720127754302>`
+        )
+        .setColor(0x9146FF)
+        .setFooter({ text: 'VNS • Gestion automatique' });
+
+      await commandChannel.send({ embeds: [embed] });
+      console.log("✅ Panneau Twitch posté dans #📟・commandes-vns");
+    } else {
+      console.log("📌 Le panneau Twitch est déjà présent dans #📟・commandes-vns");
+    }
+  }
+
+  // 🔁 Twitch live checker
+  setInterval(() => {
+    checkTwitchLive(client, '1364946098191470633', '1364945730372112496');
+  }, 5 * 60 * 1000);
 });
 
 // === Gestion des membres
