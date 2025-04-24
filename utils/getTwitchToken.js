@@ -1,4 +1,5 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+require('dotenv').config(); // ← Important ici aussi
 
 let cachedToken = null;
 let expiresAt = 0;
@@ -18,9 +19,10 @@ async function getTwitchToken() {
   });
 
   const data = await res.json();
+
   if (data.access_token) {
     cachedToken = data.access_token;
-    expiresAt = now + (data.expires_in * 1000) - 60000; // expire 1min avant
+    expiresAt = now + (data.expires_in * 1000) - 60000;
     return cachedToken;
   } else {
     console.error("❌ Erreur token Twitch :", data);

@@ -1,10 +1,12 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
+
+const { getTwitchToken } = require('./getTwitchToken');
 
 const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
-const { getTwitchToken } = require('./getTwitchToken'); // Adapte le chemin si le fichier est ailleurs
 
 async function checkTwitchLive(client, notifyChannelId, roleId) {
   if (!fs.existsSync(STREAMERS_FILE)) return;
@@ -28,7 +30,6 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
     });
 
     const data = await res.json();
-
     if (!data || !data.data) {
       console.warn("⚠️ Aucune donnée renvoyée par Twitch:", data);
       return;
