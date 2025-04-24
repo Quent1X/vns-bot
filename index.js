@@ -106,7 +106,7 @@ client.once('ready', async () => {
       roleId: '1364945730372112496',
       label: '🔔 Je veux les notifs Twitch',
       color: 0x9146FF,
-      thumbnail: 'https://img.freepik.com/vecteurs-premium/logo-vectoriel-twitch-icone-vectorielle-twitch-logotype-icones-medias-sociaux_901408-472.jpg'
+      thumbnail: 'https://img.freepik.com/vecteurs-premium/logo-twitch_578229-259.jpg?semt=ais_hybrid&w=740'
     },
     {
       id: 'youtube',
@@ -163,12 +163,18 @@ client.once('ready', async () => {
       const embed = new EmbedBuilder()
         .setTitle('🎛️ Panneau de gestion des streamers Twitch')
         .setDescription(
-          `🧰 Utilisez les **commandes slash** ci-dessous pour gérer les streamers :\n\n` +
-          `• \`/twitch add\` → Ajouter un streamer\n` +
-          `• \`/twitch remove\` → Supprimer un streamer\n` +
-          `• \`/twitch list\` → Voir la liste\n\n` +
-          `👑 Réservé au rôle <@&1364697720127754302>`
+          `👋 Bienvenue dans le panneau de gestion des streamers **Twitch** pour le staff !\n\n` +
+          `🔧 **Commandes disponibles :**\n\n` +
+          `• \`/twitch add @utilisateur pseudo_twitch\` → Enregistre un membre avec son pseudo Twitch\n` +
+          `• \`/twitch remove @utilisateur\` → Supprime un membre de la liste des streamers\n` +
+          `• \`/twitch list\` → Affiche tous les streamers enregistrés\n\n` +
+          `📌 **Fonctionnement automatique :**\n` +
+          `Une fois qu’un streamer est enregistré, le bot vérifie automatiquement toutes les 5 minutes s’il est **en live**.\n` +
+          `S’il l’est, un message de notification est posté dans <#1364946098191470633> avec mention du rôle <@&1364945730372112496>.\n\n` +
+          `👑 **Commandes réservées au rôle** : <@&1364697720127754302>\n` +
+          `💬 Utilise ce panneau comme point de repère ou d'aide pour les membres du staff.`
         )
+        
         .setColor(0x9146FF)
         .setFooter({ text: 'VNS • Gestion automatique' });
 
