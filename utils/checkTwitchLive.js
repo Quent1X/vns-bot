@@ -66,11 +66,11 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
       const embed = {
         author: {
           name: `${stream.user_name} est en live sur Twitch !`,
-          icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png',
-          url: `https://twitch.tv/${stream.user_login}`
+          url: `https://twitch.tv/${stream.user_login}`,
+          icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png'
         },
-        title: stream.title || '🔴 Live en cours',
-        description: `🔔 [Rejoindre le live](https://twitch.tv/${stream.user_login})`,
+        title: stream.title || '🔴 En direct maintenant !',
+        url: `https://twitch.tv/${stream.user_login}`,
         fields: [
           {
             name: '🎮 Jeu',
@@ -79,19 +79,23 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
           },
           {
             name: '👥 Viewers',
-            value: `${stream.viewer_count}`,
+            value: `${stream.viewer_count ?? 0}`,
             inline: true
           }
         ],
         thumbnail: {
-          url: `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-320x180.jpg`
+          url: stream.thumbnail_url
+            .replace('{width}', '320')
+            .replace('{height}', '180')
         },
+        color: 0x9146FF,
         footer: {
-          text: `🔴 En live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR')} • Aujourd’hui à ${new Date().toLocaleTimeString('fr-FR')}`
+          text: `🔴 En live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
         },
-        timestamp: new Date().toISOString(),
-        color: 0x9146FF
+        timestamp: new Date().toISOString()
       };
+      
+      
       
 
       await channel.send({ content: `<@&${roleId}>`, embeds: [embed] });
