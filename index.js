@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 
 require('dotenv').config();
-const { checkTwitchLive } = require('./utils/twitchChecker');
+const { checkTwitchLive } = require('./utils/checkTwitchLive');
 
 // === Configuration ===
 const WELCOME_CHANNEL_ID = '1364697720874602668';
