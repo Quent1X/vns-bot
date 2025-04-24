@@ -30,6 +30,8 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
     });
 
     const data = await res.json();
+    console.log("🔎 Résultat API Twitch:", JSON.stringify(data.data, null, 2));
+
     if (!data || !data.data) {
       console.warn("⚠️ Aucune donnée renvoyée par Twitch:", data);
       return;
