@@ -1,6 +1,8 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const fs = require('fs');
 const path = require('path');
+const { getTwitchToken } = require('./twitchTokenManager');
+
 
 const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
@@ -21,7 +23,8 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
     const res = await fetch(url, {
       headers: {
         'Client-ID': TWITCH_CLIENT_ID,
-        'Authorization': `Bearer ${TWITCH_TOKEN}`
+        'Authorization': `Bearer ${await getTwitchToken()}`
+
       }
     });
 
