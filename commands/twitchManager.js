@@ -4,6 +4,7 @@ const path = require('path');
 
 const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
 const STAFF_ROLE_ID = '1364697720127754302';
+const COMMAND_LOG_CHANNEL = '1364954060570103868'; // ton salon staff
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -38,7 +39,10 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    if (!interaction.member.roles.cache.has(STAFF_ROLE_ID)) {
+    const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
+    const logChannel = interaction.client.channels.cache.get(COMMAND_LOG_CHANNEL);
+
+    if (!isStaff) {
       return interaction.reply({ content: "❌ Seul le staff peut utiliser cette commande.", ephemeral: true });
     }
 
@@ -48,7 +52,6 @@ module.exports = {
       data = JSON.parse(fs.readFileSync(STREAMERS_FILE, 'utf8'));
     }
 
-    // === AJOUT
     if (sub === 'add') {
       const user = interaction.options.getUser('utilisateur');
       const twitchUsername = interaction.options.getString('pseudo').toLowerCase();
@@ -64,10 +67,12 @@ module.exports = {
       data.streamers.push({ discordId: user.id, username: twitchUsername, active: true });
       fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
 
-      return interaction.reply({ content: `✅ ${user} ajouté comme **${twitchUsername}**`, ephemeral: false });
+      await interaction.reply({ content: `✅ ${user} ajouté comme **${twitchUsername}**`, ephemeral: false });
+
+      // ✅ Log dans le salon staff
+      logChannel?.send(`➕ ${interaction.user} a ajouté ${user} comme streamer Twitch \`${twitchUsername}\``);
     }
 
-    // === SUPPRESSION (désactivation)
     if (sub === 'remove') {
       const user = interaction.options.getUser('utilisateur');
       const streamer = data.streamers.find(s => s.discordId === user.id);
@@ -76,13 +81,15 @@ module.exports = {
         return interaction.reply({ content: "❌ Ce membre n’est pas dans la liste.", ephemeral: true });
       }
 
-      streamer.active = false; // flag pour exclusion
+      streamer.active = false;
       fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
 
-      return interaction.reply({ content: `🗑️ ${user} est maintenant désactivé.`, ephemeral: false });
+      await interaction.reply({ content: `🗑️ ${user} est maintenant désactivé.`, ephemeral: false });
+
+      // ❌ Log désactivation
+      logChannel?.send(`🗑️ ${interaction.user} a désactivé ${user} des streamers Twitch.`);
     }
 
-    // === LISTE
     if (sub === 'list') {
       if (data.streamers.length === 0) {
         return interaction.reply({ content: "📭 Aucun streamer Twitch enregistré.", ephemeral: false });
@@ -99,7 +106,10 @@ module.exports = {
           }).join('\n')
         );
 
-      return interaction.reply({ embeds: [listEmbed] });
+      await interaction.reply({ embeds: [listEmbed] });
+
+      // 📋 Log visualisation
+      logChannel?.send(`📋 ${interaction.user} a consulté la liste des streamers Twitch.`);
     }
   }
 };
