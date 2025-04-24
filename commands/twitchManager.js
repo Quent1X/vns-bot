@@ -25,10 +25,10 @@ module.exports = {
     )
     .addSubcommand(sub =>
       sub.setName('remove')
-        .setDescription('Supprimer un streamer Twitch')
+        .setDescription('Désactiver un streamer Twitch (soft delete)')
         .addUserOption(opt =>
           opt.setName('utilisateur')
-            .setDescription('Membre à retirer')
+            .setDescription('Membre à désactiver')
             .setRequired(true)
         )
     )
@@ -48,6 +48,7 @@ module.exports = {
       data = JSON.parse(fs.readFileSync(STREAMERS_FILE, 'utf8'));
     }
 
+    // === AJOUT
     if (sub === 'add') {
       const user = interaction.options.getUser('utilisateur');
       const twitchUsername = interaction.options.getString('pseudo').toLowerCase();
@@ -60,45 +61,45 @@ module.exports = {
         return interaction.reply({ content: "⚠️ Ce membre est déjà enregistré.", ephemeral: true });
       }
 
-      data.streamers.push({ discordId: user.id, username: twitchUsername });
+      data.streamers.push({ discordId: user.id, username: twitchUsername, active: true });
       fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
 
       return interaction.reply({ content: `✅ ${user} ajouté comme **${twitchUsername}**`, ephemeral: false });
     }
 
+    // === SUPPRESSION (désactivation)
     if (sub === 'remove') {
-        const user = interaction.options.getUser('utilisateur');
-        const streamer = data.streamers.find(s => s.discordId === user.id);
-      
-        if (!streamer) {
-          return interaction.reply({ content: "❌ Ce membre n’est pas dans la liste.", ephemeral: true });
-        }
-      
-        streamer.active = false; // désactive au lieu de supprimer
-        fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
-      
-        return interaction.reply({ content: `🗑️ ${user} est maintenant désactivé.`, ephemeral: false });
-      }
-      
+      const user = interaction.options.getUser('utilisateur');
+      const streamer = data.streamers.find(s => s.discordId === user.id);
 
-    if (sub === 'list') {
-        if (data.streamers.length === 0) {
-          return interaction.reply({ content: "📭 Aucun streamer Twitch enregistré.", ephemeral: false });
-        }
-      
-        const listEmbed = new EmbedBuilder()
-          .setTitle("📺 Liste des streamers Twitch")
-          .setColor(0x9146FF)
-          .setDescription(
-            data.streamers.map(s => {
-              const status = s.active === false ? '🔕 inactif' : '✅ actif';
-              const userDisplay = s.discordId ? `<@${s.discordId}>` : '`inconnu`';
-              return `• ${userDisplay} → **${s.username}** (${status})`;
-            }).join('\n')
-          );
-      
-        return interaction.reply({ embeds: [listEmbed] });
+      if (!streamer) {
+        return interaction.reply({ content: "❌ Ce membre n’est pas dans la liste.", ephemeral: true });
       }
-      
+
+      streamer.active = false; // flag pour exclusion
+      fs.writeFileSync(STREAMERS_FILE, JSON.stringify(data, null, 2));
+
+      return interaction.reply({ content: `🗑️ ${user} est maintenant désactivé.`, ephemeral: false });
+    }
+
+    // === LISTE
+    if (sub === 'list') {
+      if (data.streamers.length === 0) {
+        return interaction.reply({ content: "📭 Aucun streamer Twitch enregistré.", ephemeral: false });
+      }
+
+      const listEmbed = new EmbedBuilder()
+        .setTitle("📺 Liste des streamers Twitch")
+        .setColor(0x9146FF)
+        .setDescription(
+          data.streamers.map(s => {
+            const status = s.active === false ? '🔕 inactif' : '✅ actif';
+            const userDisplay = s.discordId ? `<@${s.discordId}>` : '`inconnu`';
+            return `• ${userDisplay} → **${s.username}** (${status})`;
+          }).join('\n')
+        );
+
+      return interaction.reply({ embeds: [listEmbed] });
+    }
   }
 };
