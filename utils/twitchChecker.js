@@ -1,11 +1,11 @@
+require('dotenv').config();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
-
 const { getTwitchToken } = require('./getTwitchToken');
 
 const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
+const NOTIFIED_FILE = path.join(__dirname, '../notifiedStreams.json');
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 
 async function checkTwitchLive(client, notifyChannelId, roleId) {
@@ -38,7 +38,27 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
     const channel = client.channels.cache.get(notifyChannelId);
     if (!channel) return;
 
+    // Lire ou initialiser la liste des streams notifiés
+    let notified = [];
+    if (fs.existsSync(NOTIFIED_FILE)) {
+      try {
+        const raw = fs.readFileSync(NOTIFIED_FILE, 'utf8');
+        notified = JSON.parse(raw).streams || [];
+      } catch (err) {
+        console.warn("⚠️ Impossible de lire notifiedStreams.json, on repart de zéro.");
+        notified = [];
+      }
+    }
+
+    let updated = false;
+
+    // Traitement des streams actifs
     data.data.forEach(stream => {
+      const streamId = stream.id;
+
+      if (notified.includes(streamId)) return; // déjà notifié
+
+      // Envoi de la notif
       const embed = {
         title: `🔴 ${stream.user_name} est en live !`,
         url: `https://twitch.tv/${stream.user_login}`,
@@ -46,8 +66,17 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
         image: { url: `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-440x248.jpg` },
         color: 0x9146FF
       };
+
       channel.send({ content: `<@&${roleId}>`, embeds: [embed] });
+
+      notified.push(streamId);
+      updated = true;
     });
+
+    // Sauvegarde uniquement si on a notifié un nouveau stream
+    if (updated) {
+      fs.writeFileSync(NOTIFIED_FILE, JSON.stringify({ streams: notified }, null, 2));
+    }
 
   } catch (err) {
     console.error("❌ Erreur lors de la récupération Twitch :", err);
