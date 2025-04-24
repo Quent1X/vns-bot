@@ -65,13 +65,13 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
       // Envoi de la notification
       const embed = {
         author: {
-          name: `${stream.user_name} est en direct !`,
+          name: `${stream.user_name} est en live !`,
           icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png',
           url: `https://twitch.tv/${stream.user_login}`
         },
         title: stream.title,
         url: `https://twitch.tv/${stream.user_login}`,
-        description: `🔴 **${stream.user_name}** vient de lancer un live !\n\n🎮 *${stream.game_name || 'Jeu inconnu'}*\n👥 **${stream.viewer_count} viewers**`,
+        description: `🎮 **Jeu** : ${stream.game_name || 'Inconnu'}\n👥 **Viewers** : ${stream.viewer_count}`,
         thumbnail: {
           url: stream.thumbnail_url
             .replace('{width}', '320')
@@ -79,7 +79,7 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
         },
         color: 0x9146FF,
         footer: {
-          text: `Live commencé à ${new Date(stream.started_at).toLocaleTimeString('fr-FR')}`
+          text: `🔴 En live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR')}`
         },
         timestamp: new Date().toISOString()
       };
