@@ -1,66 +1,70 @@
 require('dotenv').config();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 const { getTwitchToken } = require('./getTwitchToken');
 
-const STREAMERS_FILE = path.join(__dirname, '../streamers.json');
-const NOTIFIED_FILE = path.join(__dirname, '../notifiedStreams.json');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 
 async function checkTwitchLive(client, notifyChannelId, roleId) {
-  if (!fs.existsSync(STREAMERS_FILE)) return;
+  console.log("🔁 [TwitchChecker] Début du check...");
 
-  const { streamers } = JSON.parse(fs.readFileSync(STREAMERS_FILE, 'utf8'));
-  const activeStreamers = streamers.filter(s => s.active !== false);
-  if (activeStreamers.length === 0) return;
-
-  const usernames = activeStreamers.map(s => s.username);
-  const url = `https://api.twitch.tv/helix/streams?user_login=${usernames.join('&user_login=')}`;
-
-  const token = await getTwitchToken();
-  if (!token) return;
+  const db = await pool.connect();
 
   try {
-    const res = await fetch(url, {
+    const res = await db.query('SELECT * FROM streamers WHERE active = true');
+    const streamers = res.rows;
+
+    if (streamers.length === 0) {
+      console.log("❌ Aucun streamer actif dans la base.");
+      return;
+    }
+
+    const usernames = streamers.map(s => s.username);
+    const url = `https://api.twitch.tv/helix/streams?user_login=${usernames.join('&user_login=')}`;
+    const token = await getTwitchToken();
+
+    if (!token) {
+      console.log("❌ Token Twitch invalide ou non récupéré.");
+      return;
+    }
+
+    const response = await fetch(url, {
       headers: {
         'Client-ID': TWITCH_CLIENT_ID,
         'Authorization': `Bearer ${token}`
       }
     });
 
-    const data = await res.json();
-    console.log("🔎 Résultat API Twitch:", JSON.stringify(data.data, null, 2));
+    const data = await response.json();
+    console.log("📦 Réponse Twitch API:", JSON.stringify(data, null, 2));
 
-    if (!data || !data.data) {
-      console.warn("⚠️ Aucune donnée renvoyée par Twitch:", data);
+    if (!data?.data || data.data.length === 0) {
+      console.log("⚠️ Aucun live détecté.");
       return;
     }
 
     const channel = client.channels.cache.get(notifyChannelId);
-    if (!channel) return;
-
-    // Lire ou initialiser la liste des streams notifiés
-    let notified = [];
-    if (fs.existsSync(NOTIFIED_FILE)) {
-      try {
-        const raw = fs.readFileSync(NOTIFIED_FILE, 'utf8');
-        notified = JSON.parse(raw).streams || [];
-      } catch (err) {
-        console.warn("⚠️ Impossible de lire notifiedStreams.json, on repart de zéro.");
-        notified = [];
-      }
+    if (!channel) {
+      console.log("❌ Salon de notification introuvable.");
+      return;
     }
 
-    let updated = false;
+    for (const stream of data.data) {
+      const twitchId = stream.id;
+      const alreadyNotified = await db.query('SELECT * FROM notified WHERE twitch_id = $1', [twitchId]);
 
-    // Traitement des streams actifs
-    data.data.forEach(stream => {
-      const streamId = stream.id;
+      if (alreadyNotified.rowCount > 0) {
+        console.log(`🔁 Déjà notifié : ${stream.user_name} (${twitchId})`);
+        continue;
+      }
 
-      if (notified.includes(streamId)) return; // déjà notifié
+      console.log(`📣 Nouvelle notif envoyée pour ${stream.user_name}`);
 
-      // Envoi de la notif
       const embed = {
         title: `🔴 ${stream.user_name} est en live !`,
         url: `https://twitch.tv/${stream.user_login}`,
@@ -69,19 +73,15 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
         color: 0x9146FF
       };
 
-      channel.send({ content: `<@&${roleId}>`, embeds: [embed] });
+      await channel.send({ content: `<@&${roleId}>`, embeds: [embed] });
 
-      notified.push(streamId);
-      updated = true;
-    });
-
-    // Sauvegarde uniquement si on a notifié un nouveau stream
-    if (updated) {
-      fs.writeFileSync(NOTIFIED_FILE, JSON.stringify({ streams: notified }, null, 2));
+      await db.query('INSERT INTO notified (twitch_id, started_at) VALUES ($1, NOW())', [twitchId]);
     }
 
   } catch (err) {
-    console.error("❌ Erreur lors de la récupération Twitch :", err);
+    console.error("❌ Erreur check Twitch:", err);
+  } finally {
+    db.release();
   }
 }
 
