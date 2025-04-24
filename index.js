@@ -113,6 +113,7 @@ client.on(Events.InteractionCreate, async interaction => {
     await interaction.reply({ content: "❌ Une erreur est survenue.", ephemeral: true });
   }
 });
+console.log("🔍 TOKEN fourni à Discord :", typeof process.env.TOKEN, process.env.TOKEN?.slice(0, 10));
 
 client.login(process.env.TOKEN);
 
