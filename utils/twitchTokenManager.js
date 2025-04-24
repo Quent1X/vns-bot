@@ -20,7 +20,7 @@ async function getTwitchToken() {
   const data = await res.json();
   if (data.access_token) {
     cachedToken = data.access_token;
-    expiresAt = now + (data.expires_in * 1000) - 60000; // 1 minute before expiry
+    expiresAt = now + (data.expires_in * 1000) - 60000; // expire 1min avant
     return cachedToken;
   } else {
     console.error("❌ Erreur token Twitch :", data);
