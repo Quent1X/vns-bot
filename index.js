@@ -112,7 +112,7 @@ client.once('ready', async () => {
       id: 'youtube',
       name: 'YouTube',
       emoji: '🔴',
-      roleId: 'TON_ID_ROLE_YOUTUBE',
+      roleId: '1364957258215063584',
       label: '🔔 Je veux les notifs YouTube',
       color: 0xFF0000,
       thumbnail: 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png'
