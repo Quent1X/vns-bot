@@ -7,7 +7,7 @@ const STAFF_ROLE_ID = '1364697720127754302';
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('twitch_streamer_add')
+    .setName('twitch')
     .setDescription('Gérer les streamers Twitch')
     .addSubcommand(sub =>
       sub.setName('add')
@@ -65,7 +65,7 @@ module.exports = {
 
       return interaction.reply({ content: `✅ ${user} ajouté comme **${twitchUsername}**`, ephemeral: false });
     }
-    
+
     if (sub === 'remove') {
         const user = interaction.options.getUser('utilisateur');
         const streamer = data.streamers.find(s => s.discordId === user.id);
