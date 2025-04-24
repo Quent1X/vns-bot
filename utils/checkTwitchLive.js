@@ -61,12 +61,40 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
 
       // Envoi de la notification
       const embed = {
-        title: `🔴 ${stream.user_name} est en live !`,
+        author: {
+          name: `${stream.user_name} est en live sur Twitch !`,
+          url: `https://twitch.tv/${stream.user_login}`,
+          icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png'
+        },
+        title: stream.title,
         url: `https://twitch.tv/${stream.user_login}`,
-        description: `🎮 ${stream.game_name} | ${stream.title}`,
-        image: { url: `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-440x248.jpg` },
-        color: 0x9146FF
+        fields: [
+          {
+            name: '🎮 Jeu',
+            value: stream.game_name || 'Inconnu',
+            inline: true
+          },
+          {
+            name: '👥 Viewers',
+            value: `${stream.viewer_count}`,
+            inline: true
+          }
+        ],
+        thumbnail: {
+          url: stream.thumbnail_url
+            .replace('{width}', '320')
+            .replace('{height}', '180')
+        },
+        image: {
+          url: `https://static-cdn.jtvnw.net/previews-ttv/live_user_${stream.user_login}-640x360.jpg`
+        },
+        color: 0x9146FF,
+        footer: {
+          text: `🔴 Live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR')}`
+        },
+        timestamp: new Date().toISOString()
       };
+      
 
       await channel.send({ content: `<@&${roleId}>`, embeds: [embed] });
       console.log(`📢 Notification envoyée pour ${stream.user_name}`);
