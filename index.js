@@ -61,7 +61,7 @@ client.once('ready', async () => {
       const embed = new EmbedBuilder()
         .setTitle('📜 RÈGLEMENT DU SERVEUR VNS')
         .setDescription(
-          `Bienvenue à toi chez **VNS** — la communauté qui ne tue pas les squads adverses mais les ridiculise !\n\n` +
+          `Bienvenue à toi chez **VNS** — la communauté qui ne tue pas nos ennemis mais les humilie !\n\n` +
           `Merci de prendre quelques minutes pour lire ce règlement, on tient à une bonne ambiance 😌\n\n` +
           `🔹 **1. Respect avant tout**\n` +
           `→ On est ici pour chill. Aucune place pour les insultes, propos haineux ou discriminations.\n\n` +

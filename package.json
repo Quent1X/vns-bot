@@ -8,10 +8,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "discord.js": "^14.18.0",
     "dotenv": "^16.5.0",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quent1X/vns-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Quent1X/vns-bot/issues"
+  },
+  "homepage": "https://github.com/Quent1X/vns-bot#readme",
+  "description": ""
 }
