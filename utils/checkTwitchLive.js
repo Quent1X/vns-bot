@@ -65,13 +65,24 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
       // Envoi de la notification
       const embed = {
         author: {
-          name: `${stream.user_name} est en live !`,
-          icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png',
-          url: `https://twitch.tv/${stream.user_login}`
+          name: `${stream.user_name} est en live sur Twitch !`,
+          url: `https://twitch.tv/${stream.user_login}`,
+          icon_url: 'https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png'
         },
-        title: stream.title,
+        title: stream.title || '🔴 En direct maintenant !',
         url: `https://twitch.tv/${stream.user_login}`,
-        description: `🎮 **Jeu** : ${stream.game_name || 'Inconnu'}\n👥 **Viewers** : ${stream.viewer_count}`,
+        fields: [
+          {
+            name: '🎮 Jeu',
+            value: stream.game_name || 'Inconnu',
+            inline: true
+          },
+          {
+            name: '👥 Viewers',
+            value: `${stream.viewer_count ?? 0}`,
+            inline: true
+          }
+        ],
         thumbnail: {
           url: stream.thumbnail_url
             .replace('{width}', '320')
@@ -79,10 +90,11 @@ async function checkTwitchLive(client, notifyChannelId, roleId) {
         },
         color: 0x9146FF,
         footer: {
-          text: `🔴 En live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR')}`
+          text: `🔴 En live depuis ${new Date(stream.started_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`
         },
         timestamp: new Date().toISOString()
       };
+      
       
       
 
