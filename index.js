@@ -98,29 +98,60 @@ client.once('ready', async () => {
   }
 
   // === Message pour rôle Twitch
-  const twitchRoleChannel = client.channels.cache.get(ROLE_SELECTOR_CHANNEL);
-  if (twitchRoleChannel) {
-    const embed = new EmbedBuilder()
-      .setTitle('🎭 Choisis ton rôle Twitch')
-      .setDescription(
-        `🎮 Tu veux recevoir les notifications des lives Twitch ?\n\n` +
-        `Clique ici pour recevoir le rôle <@&${TWITCH_ROLE_ID}>.\n` +
-        `Tu pourras le retirer à tout moment.`
-      )
-      .setColor(0x9146FF)
-      .setThumbnail('https://static-cdn.jtvnw.net/jtv_user_pictures/hosted_images/Twitch_Logo_Purple_RGB.png')
-      .setFooter({ text: 'Sélection automatique de rôle - VNS' });
-
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId('toggle_twitch_role')
-        .setLabel('🎮 Je suis Streamer Twitch')
-        .setStyle(ButtonStyle.Primary)
-    );
-
-    await twitchRoleChannel.send({ embeds: [embed], components: [row] });
-    console.log('📩 Message de rôle Twitch envoyé');
-  }
+  const PLATFORM_ROLES = [
+    {
+      id: 'twitch',
+      name: 'Twitch',
+      emoji: '🟣',
+      roleId: '1364945730372112496',
+      label: '🔔 Je veux les notifs Twitch',
+      color: 0x9146FF,
+      thumbnail: 'https://static-cdn.jtvnw.net/jtv_user_pictures/hosted_images/Twitch_Logo_Purple_RGB.png'
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube',
+      emoji: '🔴',
+      roleId: 'TON_ID_ROLE_YOUTUBE',
+      label: '🔔 Je veux les notifs YouTube',
+      color: 0xFF0000,
+      thumbnail: 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png'
+    }
+  ];
+  
+  const autoRoleChannel = client.channels.cache.get(ROLE_SELECTOR_CHANNEL);
+  if (autoRoleChannel) {
+    const messages = await autoRoleChannel.messages.fetch({ limit: 20 });
+  
+    for (const platform of PLATFORM_ROLES) {
+      const alreadyPosted = messages.find(
+        msg => msg.author.id === client.user.id &&
+               msg.embeds[0]?.title?.includes(platform.name)
+      );
+      if (alreadyPosted) continue;
+  
+      const embed = new EmbedBuilder()
+        .setTitle(`${platform.emoji} Choisis ton rôle ${platform.name}`)
+        .setDescription(
+          `📢 Tu veux recevoir les notifications de ${platform.name} ?\n\n` +
+          `Clique ici pour activer ou désactiver le rôle <@&${platform.roleId}>.`
+        )
+        .setColor(platform.color)
+        .setThumbnail(platform.thumbnail)
+        .setFooter({ text: 'Sélection automatique de rôle - VNS' });
+  
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`toggle_${platform.id}_role`)
+          .setLabel(platform.label)
+          .setStyle(ButtonStyle.Primary)
+      );
+  
+      await autoRoleChannel.send({ embeds: [embed], components: [row] });
+    }
+  
+    console.log("📩 Messages de sélection de rôles envoyés (si absents)");
+  }  
 });
 
 // === Gestion des membres
@@ -169,24 +200,36 @@ client.on(Events.InteractionCreate, async interaction => {
       }
     }
 
-    if (interaction.customId === 'toggle_twitch_role') {
-      const role = member.guild.roles.cache.get(TWITCH_ROLE_ID);
-      if (!role) return interaction.reply({ content: "❌ Rôle Twitch introuvable.", ephemeral: true });
-
+    if (interaction.customId.startsWith('toggle_') && interaction.customId.endsWith('_role')) {
+      const platformId = interaction.customId.split('_')[1];
+    
+      const PLATFORM_ROLE_MAP = {
+        twitch: '1364945730372112496',
+        youtube: 'TON_ID_ROLE_YOUTUBE',
+        tiktok: 'TON_ID_ROLE_TIKTOK'
+      };
+    
+      const roleId = PLATFORM_ROLE_MAP[platformId];
+      const role = interaction.guild.roles.cache.get(roleId);
+      if (!role) return interaction.reply({ content: "❌ Rôle introuvable.", ephemeral: true });
+    
+      const member = interaction.member;
       const hasRole = member.roles.cache.has(role.id);
+    
       try {
         if (hasRole) {
           await member.roles.remove(role);
-          await interaction.reply({ content: "❌ Rôle Twitch retiré.", ephemeral: true });
+          await interaction.reply({ content: `❌ Rôle ${platformId} retiré.`, ephemeral: true });
         } else {
           await member.roles.add(role);
-          await interaction.reply({ content: "✅ Rôle Twitch ajouté !", ephemeral: true });
+          await interaction.reply({ content: `✅ Rôle ${platformId} ajouté !`, ephemeral: true });
         }
       } catch (err) {
         console.error(err);
-        await interaction.reply({ content: "❌ Erreur Twitch rôle.", ephemeral: true });
+        await interaction.reply({ content: "❌ Erreur avec le rôle.", ephemeral: true });
       }
     }
+    
   }
 
   // Commandes Slash
