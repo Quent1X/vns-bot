@@ -63,13 +63,24 @@ client.once('ready', async () => {
         .setDescription(
           `Bienvenue à toi chez **VNS** — la communauté qui ne tue pas les squads adverses mais les ridiculise !\n\n` +
           `Merci de prendre quelques minutes pour lire ce règlement, on tient à une bonne ambiance 😌\n\n` +
-          `🔹 **1. Respect avant tout**\n→ Pas de propos haineux ou toxiques\n\n` +
-          `🔹 **2. Pas de spam, pub ou NSFW**\n→ On garde le serveur clean\n\n` +
-          `🔹 **3. Utilise les bons canaux**\n→ Et évite le flood\n\n` +
-          `🔹 **4. Pseudo lisible et pas troll**\n\n` +
-          `🔹 **5. Le staff est là pour vous, soyez cool**\n\n` +
+          `🔹 **1. Respect avant tout**\n` +
+          `→ On est ici pour chill. Aucune place pour les insultes, propos haineux ou discriminations.\n\n` +
+        
+          `🔹 **2. Pas de spam, pub ou contenu NSFW**\n` +
+          `→ On rigole, mais dans les limites du bon goût.\n\n` +
+        
+          `🔹 **3. Utilise les bons canaux**\n` +
+          `→ Chaque salon a sa fonction, respecte-les pour qu’on s’y retrouve.\n\n` +
+        
+          `🔹 **4. Pas de pseudo troll ou illisible**\n` +
+          `→ On doit pouvoir te tagger facilement 🧠\n\n` +
+        
+          `🔹 **5. Le staff est là pour vous, mais restez cool**\n` +
+          `→ On est bénévoles. Une remarque ? On en discute sans clash.\n\n` +
+        
           `✅ Clique sur le bouton ci-dessous pour **valider** et accéder au serveur.`
         )
+        
         .setColor(0x00AEEF)
         .setFooter({ text: 'L’équipe VNS vous souhaite la bienvenue 💜' });
 
