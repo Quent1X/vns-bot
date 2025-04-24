@@ -32,7 +32,22 @@ module.exports = {
     .addSubcommand(sub =>
       sub.setName('list')
         .setDescription('Lister tous les streamers enregistrés')
-    ),
+    )
+    .addSubcommand(sub =>
+        sub.setName('activate')
+          .setDescription('Réactiver un streamer Twitch désactivé')
+          .addUserOption(opt =>
+            opt.setName('utilisateur').setDescription('Membre à réactiver').setRequired(true)
+          )
+      )
+      .addSubcommand(sub =>
+        sub.setName('delete')
+          .setDescription('Supprimer complètement un streamer Twitch de la base')
+          .addUserOption(opt =>
+            opt.setName('utilisateur').setDescription('Membre à supprimer').setRequired(true)
+          )
+      ),
+      
 
   async execute(interaction) {
     const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
@@ -99,6 +114,34 @@ module.exports = {
 
         return interaction.reply({ embeds: [embed] });
       }
+      if (sub === 'activate') {
+        const user = interaction.options.getUser('utilisateur');
+        const res = await client.query(
+          'UPDATE streamers SET active = true WHERE discord_id = $1 RETURNING *',
+          [user.id]
+        );
+      
+        if (res.rowCount === 0) {
+          return interaction.reply({ content: "❌ Ce membre n’est pas dans la base.", flags: 1 << 6 });
+        }
+      
+        return interaction.reply({ content: `✅ ${user} a été réactivé.` });
+      }
+      
+      if (sub === 'delete') {
+        const user = interaction.options.getUser('utilisateur');
+        const res = await client.query(
+          'DELETE FROM streamers WHERE discord_id = $1 RETURNING *',
+          [user.id]
+        );
+      
+        if (res.rowCount === 0) {
+          return interaction.reply({ content: "❌ Ce membre n’existe pas dans la base.", flags: 1 << 6 });
+        }
+      
+        return interaction.reply({ content: `🗑️ ${user} a été supprimé de la base.` });
+      }
+      
     } catch (err) {
       console.error(err);
       return interaction.reply({ content: "❌ Une erreur est survenue.", flags: 1 << 6 });
