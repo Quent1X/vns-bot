@@ -91,10 +91,7 @@ client.once('ready', async () => {
       await rulesChannel.send({ embeds: [embed], components: [row] });
       console.log("📜 Règlement VNS envoyé avec bouton.");
     }
-    setInterval(() => {
-      checkTwitchLive(client, '1364946098191470633', '1364945730372112496');
-    }, 5 * 60 * 1000); // toutes les 5 minutes
-    
+  
   }
 
   // === Message pour rôle Twitch
@@ -185,10 +182,11 @@ client.once('ready', async () => {
     }
   }
 
-  // 🔁 Twitch live checker
-  setInterval(() => {
-    checkTwitchLive(client, '1364946098191470633', '1364945730372112496');
-  }, 5 * 60 * 1000);
+// 🔁 Twitch live checker : vérifie toutes les 60 secondes
+setInterval(() => {
+  checkTwitchLive(client, '1364946098191470633', '1364945730372112496');
+}, 60 * 1000);
+
 });
 
 // === Gestion des membres
