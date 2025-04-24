@@ -106,7 +106,7 @@ client.once('ready', async () => {
       roleId: '1364945730372112496',
       label: '🔔 Je veux les notifs Twitch',
       color: 0x9146FF,
-      thumbnail: 'https://static-cdn.jtvnw.net/jtv_user_pictures/hosted_images/Twitch_Logo_Purple_RGB.png'
+      thumbnail: 'https://img.freepik.com/vecteurs-premium/logo-vectoriel-twitch-icone-vectorielle-twitch-logotype-icones-medias-sociaux_901408-472.jpg'
     },
     {
       id: 'youtube',
