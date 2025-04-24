@@ -1,9 +1,4 @@
 {
   "streamers": [
-    {
-      "discordId": "123456789012345678", 
-      "username": "nucky_tv",
-      "active": true
-    }
   ]
 }
