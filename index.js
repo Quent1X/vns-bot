@@ -186,8 +186,10 @@ client.once('ready', async () => {
 
 // 🔁 Twitch live checker : vérifie toutes les 60 secondes
 setInterval(() => {
+  console.log("🔁 Lancement du check Twitch live...");
   checkTwitchLive(client, '1364946098191470633', '1364945730372112496');
 }, 60 * 1000);
+
 
 });
 
