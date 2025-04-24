@@ -1,0 +1,26 @@
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('slowmode')
+    .setDescription('Active le mode lent sur un salon.')
+    .addIntegerOption(opt => opt.setName('secondes').setDescription('Nombre de secondes entre les messages (0 = off)').setRequired(true))
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+
+  async execute(interaction) {
+    const seconds = interaction.options.getInteger('secondes');
+    const channel = interaction.channel;
+    const logChannel = interaction.guild.channels.cache.get('1365022194438115458');
+
+    try {
+      await channel.setRateLimitPerUser(seconds);
+      await interaction.reply(`⏱️ Mode lent ${seconds === 0 ? 'désactivé' : `activé : ${seconds} sec`} sur ${channel}.`);
+      if (logChannel) {
+        logChannel.send(`📋 **Slowmode** : ${interaction.user.tag} a modifié le mode lent à ${seconds} sec dans ${channel}`);
+      }
+    } catch (err) {
+      console.error(err);
+      await interaction.reply({ content: '❌ Erreur en appliquant le mode lent.', ephemeral: true });
+    }
+  }
+};

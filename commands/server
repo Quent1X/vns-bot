@@ -1,0 +1,18 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder().setName('server').setDescription("Affiche les infos du serveur."),
+  async execute(interaction) {
+    const guild = interaction.guild;
+    const embed = new EmbedBuilder()
+      .setTitle(`📊 Infos du serveur ${guild.name}`)
+      .addFields(
+        { name: '👑 Propriétaire', value: `<@${guild.ownerId}>`, inline: true },
+        { name: '👥 Membres', value: `${guild.memberCount}`, inline: true },
+        { name: '📅 Créé le', value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:D>`, inline: false }
+      )
+      .setColor(0x00AEEF);
+
+    await interaction.reply({ embeds: [embed] });
+  }
+};

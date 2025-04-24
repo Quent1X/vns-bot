@@ -1,0 +1,26 @@
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('ban')
+    .setDescription("Bannit un membre du serveur.")
+    .addUserOption(opt => opt.setName('utilisateur').setDescription('Membre à bannir').setRequired(true))
+    .addStringOption(opt => opt.setName('raison').setDescription('Raison du bannissement').setRequired(false))
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+  
+  async execute(interaction) {
+    const user = interaction.options.getUser('utilisateur');
+    const reason = interaction.options.getString('raison') || 'Aucune raison spécifiée';
+    const member = interaction.guild.members.cache.get(user.id);
+
+    if (!member) return interaction.reply({ content: "❌ Membre introuvable.", ephemeral: true });
+
+    try {
+      await member.ban({ reason });
+      await interaction.reply(`✅ ${user.tag} a été banni.\nRaison : ${reason}`);
+    } catch (err) {
+      console.error(err);
+      await interaction.reply({ content: "❌ Je ne peux pas bannir cet utilisateur.", ephemeral: true });
+    }
+  }
+};

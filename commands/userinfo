@@ -1,0 +1,24 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('userinfo')
+    .setDescription("Affiche les infos d'un utilisateur.")
+    .addUserOption(opt => opt.setName('utilisateur').setDescription("Choisis l'utilisateur").setRequired(true)),
+  
+  async execute(interaction) {
+    const user = interaction.options.getUser('utilisateur');
+    const member = interaction.guild.members.cache.get(user.id);
+    const embed = new EmbedBuilder()
+      .setTitle(`👤 Infos sur ${user.tag}`)
+      .setThumbnail(user.displayAvatarURL())
+      .addFields(
+        { name: '📅 Compte créé le', value: `<t:${Math.floor(user.createdTimestamp / 1000)}:D>`, inline: true },
+        { name: '📆 Rejoint le serveur le', value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:D>`, inline: true },
+        { name: '🧷 Rôles', value: member.roles.cache.map(r => r).join(', '), inline: false }
+      )
+      .setColor(0x00AEEF);
+    
+    await interaction.reply({ embeds: [embed] });
+  }
+};

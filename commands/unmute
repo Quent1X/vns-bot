@@ -1,0 +1,24 @@
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('unmute')
+    .setDescription('Rend la parole à un membre.')
+    .addUserOption(opt => opt.setName('utilisateur').setDescription('Membre à unmute').setRequired(true))
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+
+  async execute(interaction) {
+    const user = interaction.options.getUser('utilisateur');
+    const member = interaction.guild.members.cache.get(user.id);
+    const mutedRole = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === 'muted');
+    const logChannel = interaction.guild.channels.cache.get('1365022194438115458');
+
+    if (!mutedRole || !member) return interaction.reply({ content: '❌ Erreur : rôle ou membre introuvable.', ephemeral: true });
+
+    await member.roles.remove(mutedRole);
+    await interaction.reply(`🔊 ${user.tag} a été unmute.`);
+    if (logChannel) {
+      logChannel.send(`📋 **Unmute** : ${user.tag} a été unmute par ${interaction.user.tag}`);
+    }
+  }
+};

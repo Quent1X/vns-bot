@@ -1,0 +1,31 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('report')
+    .setDescription('Signaler un membre au staff.')
+    .addUserOption(opt => opt.setName('utilisateur').setDescription('Membre à signaler').setRequired(true))
+    .addStringOption(opt => opt.setName('raison').setDescription('Motif du signalement').setRequired(true)),
+
+  async execute(interaction) {
+    const reportedUser = interaction.options.getUser('utilisateur');
+    const reason = interaction.options.getString('raison');
+    const logChannel = interaction.guild.channels.cache.get('1365022194438115458');
+
+    const embed = new EmbedBuilder()
+      .setTitle('🚨 Nouveau Signalement')
+      .addFields(
+        { name: 'Membre signalé', value: `${reportedUser.tag} (${reportedUser.id})`, inline: true },
+        { name: 'Signalé par', value: `${interaction.user.tag}`, inline: true },
+        { name: 'Raison', value: reason }
+      )
+      .setColor(0xFF0000)
+      .setTimestamp();
+
+    await interaction.reply({ content: '✅ Signalement transmis au staff.', ephemeral: true });
+
+    if (logChannel) {
+      logChannel.send({ embeds: [embed] });
+    }
+  }
+};

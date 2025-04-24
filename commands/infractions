@@ -1,0 +1,26 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('infractions')
+    .setDescription('Affiche les avertissements d’un membre.')
+    .addUserOption(opt => opt.setName('utilisateur').setDescription('Membre concerné').setRequired(true)),
+
+  async execute(interaction) {
+    const user = interaction.options.getUser('utilisateur');
+    const userWarns = warns.get(user.id) || [];
+
+    if (userWarns.length === 0) {
+      return interaction.reply({ content: `✅ Aucun avertissement pour ${user.tag}.`, ephemeral: true });
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle(`📄 Infractions de ${user.tag}`)
+      .setColor(0xFFA500)
+      .setDescription(
+        userWarns.map((w, i) => `**#${i + 1}** - par ${w.mod} - ${w.date}\n📝 ${w.reason}`).join('\n\n')
+      );
+
+    await interaction.reply({ embeds: [embed], ephemeral: true });
+  }
+};

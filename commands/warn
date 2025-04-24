@@ -1,0 +1,24 @@
+const { SlashCommandBuilder } = require('discord.js');
+const warns = new Map(); // à persister avec JSON ou DB si besoin
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('warn')
+    .setDescription('Ajoute un avertissement à un utilisateur.')
+    .addUserOption(opt => opt.setName('utilisateur').setDescription('Membre à avertir').setRequired(true))
+    .addStringOption(opt => opt.setName('raison').setDescription('Raison').setRequired(true)),
+
+  async execute(interaction) {
+    const user = interaction.options.getUser('utilisateur');
+    const reason = interaction.options.getString('raison');
+    const logChannel = interaction.guild.channels.cache.get('1365022194438115458');
+
+    if (!warns.has(user.id)) warns.set(user.id, []);
+    warns.get(user.id).push({ mod: interaction.user.tag, reason, date: new Date().toLocaleString() });
+
+    await interaction.reply(`⚠️ Avertissement ajouté à ${user.tag}.\nRaison : ${reason}`);
+    if (logChannel) {
+      logChannel.send(`📋 **Avertissement** pour ${user.tag} par ${interaction.user.tag} : ${reason}`);
+    }
+  }
+};
