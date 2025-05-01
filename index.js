@@ -52,10 +52,15 @@ const commandFiles = getAllCommandFiles(commandsPath);
 const commands = [];
 
 for (const file of commandFiles) {
-  const command = require(file); 
-  commands.push(command.data.toJSON());
+  const command = require(path.resolve(file));
+  if (!command?.data || !command?.execute) {
+    console.warn(`⚠️ Commande invalide ignorée : ${file}`);
+    continue;
+  }
   client.commands.set(command.data.name, command);
+  commands.push(command.data.toJSON());
 }
+
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 client.once('ready', async () => {
