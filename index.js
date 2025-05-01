@@ -25,7 +25,14 @@ const TWITCH_ROLE_ID = '1364945730372112496';
 const ROLE_SELECTOR_CHANNEL = '1365207420716056636';
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions
+  ],
+  
   partials: [Partials.GuildMember],
 });
 
@@ -278,15 +285,21 @@ client.on(Events.InteractionCreate, async interaction => {
 
   // Commandes Slash
   if (interaction.isChatInputCommand()) {
+    console.log(`📥 Commande slash reçue : ${interaction.commandName}`); // 🔍 Ajout important
     const command = client.commands.get(interaction.commandName);
-    if (!command) return;
+    if (!command) {
+      console.warn(`❌ Commande inconnue : ${interaction.commandName}`);
+      return;
+    }
+  
     try {
       await command.execute(interaction);
     } catch (err) {
-      console.error(err);
-      await interaction.reply({ content: '❌ Erreur dans la commande.', ephemeral: true });
+      console.error(`❌ Erreur dans la commande ${interaction.commandName} :`, err);
+      if (!interaction.replied) {
+        await interaction.reply({ content: '❌ Erreur lors de l’exécution de la commande.', ephemeral: true });
+      }
     }
   }
-});
-
+  
 client.login(process.env.TOKEN);
