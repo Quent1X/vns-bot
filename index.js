@@ -51,7 +51,7 @@ const commandFiles = getAllCommandFiles(commandsPath);
 const commands = [];
 
 for (const file of commandFiles) {
-  const command = require(path.join(commandsPath, file));
+  const command = require(file); 
   commands.push(command.data.toJSON());
   client.commands.set(command.data.name, command);
 }
