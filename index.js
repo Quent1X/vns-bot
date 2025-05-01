@@ -43,8 +43,9 @@ const getAllCommandFiles = (dir) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap(file =>
     file.isDirectory()
       ? getAllCommandFiles(path.join(dir, file.name))
-      : file.name.endsWith('.js') ? path.join(dir, file.name) : []
+      : file.name.endsWith('.js') ? [path.join(dir, file.name)] : []
   );
+
 
 const commandFiles = getAllCommandFiles(commandsPath);
 
