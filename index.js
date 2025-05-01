@@ -52,7 +52,7 @@ const commandFiles = getAllCommandFiles(commandsPath);
 const commands = [];
 
 for (const file of commandFiles) {
-  const command = require(path.resolve(file));
+  const command = require(file);
   if (!command?.data || !command?.execute) {
     console.warn(`⚠️ Commande invalide ignorée : ${file}`);
     continue;
