@@ -39,7 +39,15 @@ const client = new Client({
 // === Enregistrement des commandes slash ===
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const getAllCommandFiles = (dir) =>
+  fs.readdirSync(dir, { withFileTypes: true }).flatMap(file =>
+    file.isDirectory()
+      ? getAllCommandFiles(path.join(dir, file.name))
+      : file.name.endsWith('.js') ? path.join(dir, file.name) : []
+  );
+
+const commandFiles = getAllCommandFiles(commandsPath);
+
 const commands = [];
 
 for (const file of commandFiles) {
