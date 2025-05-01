@@ -46,7 +46,11 @@ client.once('ready', async () => {
   console.log(`🤖 Connecté en tant que ${client.user.tag}`);
 
   try {
-    await rest.put(Routes.applicationCommands(client.user.id), { body: commands });
+    await rest.put(
+      Routes.applicationGuildCommands(client.user.id, process.env.GUILD_ID),
+      { body: commands }
+    );
+    
     console.log('✅ Commandes slash enregistrées');
   } catch (err) {
     console.error('❌ Erreur enregistrement commandes :', err);
@@ -220,24 +224,9 @@ client.on('guildMemberRemove', member => {
     .setFooter({ text: `Il reste ${member.guild.memberCount} membres.` });
 
   channel.send({ embeds: [embed] });
-  
-});
-client.on("ready", async () => {
-  await client.application.commands.set([
-      {
-          name: "ping",
-          description: "Pong!"
-      }
-  ]);
 
-  console.log("Le bot est prêt !");
 });
 
-client.on("interactionCreate", (interaction) => {
-  if (!interaction.isCommand()) return;
-  if (interaction.commandName === "ping")
-      interaction.reply("Pong!");
-});
 
 // === Gestion des boutons et slash
 client.on(Events.InteractionCreate, async interaction => {
